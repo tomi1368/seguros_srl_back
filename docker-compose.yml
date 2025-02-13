@@ -1,0 +1,26 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blog_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - 3307:3306
+  backend:
+    build: .
+    ports:
+      - 5000:5000
+    depends_on:
+      - db
+    env_file:
+      - .env.prod
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "npx wait-on tcp:db:3306 && npx prisma migrate deploy && yarn start",
+      ]
